@@ -24,6 +24,7 @@
 #include <QBrush>
 #include <QTimer>
 #include <QTime>
+#include <math.h>
 namespace Ui {
 class MainWindow;
 }

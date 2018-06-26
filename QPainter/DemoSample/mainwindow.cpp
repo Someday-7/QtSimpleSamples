@@ -43,7 +43,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::TextAntialiasing);
     int width = this->width();
     int height = this->height();
-    QRect rect(width/4,height/4,width/4,height/4);
+    QRect rect(0,0,width/6,height/6);
 
     //设置画笔
     QPen pen;
@@ -67,7 +67,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
     brush.setStyle(Qt::DiagCrossPattern);
     painter.setBrush(brush);
     //绘制一个椭圆形区域
-    painter.drawEllipse(width-50,height-50,20,50);
+    painter.drawEllipse(width/3,width/3,100,100);
 
 
     QFont font;
@@ -94,7 +94,87 @@ void MainWindow::paintEvent(QPaintEvent *event)
     radialGradient.setColorAt(1,Qt::blue);//终点，由起点绿变终点蓝
     radialGradient.setSpread(QGradient::ReflectSpread);//反射传播
     painter.setBrush(radialGradient);
-    painter.drawRect(width-100,0,width-80,80);
+    painter.drawRect(width/2,0,width/2,80);
+#if 0
+//画五角星
+    //生成五角星的5个顶点坐标，假设原点在五角星中心
+    qreal R = 100;//半径
+    const qreal Pi = 3.1415926;
+    qreal deg = Pi*72/180;
+    QPoint points[5] =  {
+      QPoint(R,0),
+      QPoint(R*cos(deg),-R*sin(deg)),
+      QPoint(R*cos(2*deg),-R*sin(2*deg)),
+      QPoint(R*cos(3*deg),-R*sin(3*deg)),
+      QPoint(R*cos(4*deg),-R*sin(4*deg))
+    };
+    //设置字体
+    font.setPointSize(12);
+    font.setBold(false);
+    painter.setFont(font);
+    //设置画笔
+    pen.setWidthF(2); //线宽
+    pen.setColor(Qt::red);
+    pen.setStyle(Qt::SolidLine);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setJoinStyle(Qt::BevelJoin);
+    painter.setPen(pen);
+    //设置画刷
+    brush.setColor(Qt::yellow);
+    brush.setStyle(Qt::SolidPattern);
+    painter.setBrush(brush);
+    //设置五角星的painterpath，以便重复使用
+    QPainterPath startPath;
+    startPath.moveTo(points[0]);
+    startPath.lineTo(points[2]);
+    startPath.lineTo(points[4]);
+    startPath.lineTo(points[1]);
+    startPath.lineTo(points[3]);
+    startPath.closeSubpath();//闭合路径，最后一个点与第一个点相连
+    startPath.addText(points[0],font,"0");
+    startPath.addText(points[1],font,"1");
+    startPath.addText(points[2],font,"2");
+    startPath.addText(points[3],font,"3");
+    startPath.addText(points[4],font,"4");
 
+    //绘图 start 1
+    painter.save();//保存坐标状态
+    painter.translate(100,200);//平移
+    painter.drawPath(startPath);
+    painter.drawText(0,0,"Start 1");
+    painter.restore();//恢复坐标状态
 
+    //绘图 start 2
+    painter.translate(300,120);//平移
+    painter.scale(0.8,0.8);//缩放
+    painter.rotate(90);//顺时针旋转90度
+    painter.drawPath(startPath);
+    painter.drawText(0,0,"Start 2");
+
+    //绘图 start 3
+    painter.resetTransform();//恢复所有坐标变换
+    painter.translate(500,120);//平移
+    painter.rotate(-145);//逆时针旋转145度
+    painter.drawPath(startPath);
+    painter.drawText(0,0,"Start 3");
+
+    painter.resetTransform();//恢复所有坐标变换
+#else
+//使用窗口坐标绘图
+    int side = qMin(width,height);
+    QRect viewRect((width-side)/2,(height-side)/2,side,side);//viewport 矩形区
+    painter.drawRect(viewRect);
+    painter.setViewport(viewRect);//设置viewport
+    painter.setWindow(-100,-100,200,200);//设置窗口大小
+    //设置画笔
+    pen.setWidth(1);//线宽
+    pen.setColor(Qt::red);
+    pen.setStyle(Qt::SolidLine);
+    painter.setPen(pen);
+    for(int i=0;i<36;i++)
+    {
+        painter.drawEllipse(QPoint(50,0),50,50);
+        painter.rotate(10);
+    }
+#endif
 }
