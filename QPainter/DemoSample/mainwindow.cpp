@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -67,7 +67,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
     brush.setStyle(Qt::DiagCrossPattern);
     painter.setBrush(brush);
     //绘制一个椭圆形区域
-    painter.drawEllipse(width/3,width/3,100,100);
+    painter.drawEllipse(width/3,width/3,100,100);//圆在矩形中，矩形左上角坐标width/3,width/3
 
 
     QFont font;
