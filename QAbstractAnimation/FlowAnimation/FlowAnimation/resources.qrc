@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/flow/images">
+        <file>Resources/Arrow.png</file>
+    </qresource>
+</RCC>
