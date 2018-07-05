@@ -211,6 +211,7 @@ Makefile: ../BreatheLight/BreatheLight.pro F:/Qt5.9/5.9/mingw53_32/mkspecs/win32
 		F:/Qt5.9/5.9/mingw53_32/mkspecs/features/qt_config.prf \
 		F:/Qt5.9/5.9/mingw53_32/mkspecs/win32-g++/qmake.conf \
 		F:/Qt5.9/5.9/mingw53_32/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		F:/Qt5.9/5.9/mingw53_32/mkspecs/features/exclusive_builds.prf \
 		F:/Qt5.9/5.9/mingw53_32/mkspecs/features/toolchain.prf \
 		F:/Qt5.9/5.9/mingw53_32/mkspecs/features/default_pre.prf \
@@ -388,6 +389,7 @@ F:/Qt5.9/5.9/mingw53_32/mkspecs/features/qt_functions.prf:
 F:/Qt5.9/5.9/mingw53_32/mkspecs/features/qt_config.prf:
 F:/Qt5.9/5.9/mingw53_32/mkspecs/win32-g++/qmake.conf:
 F:/Qt5.9/5.9/mingw53_32/mkspecs/features/spec_post.prf:
+.qmake.stash:
 F:/Qt5.9/5.9/mingw53_32/mkspecs/features/exclusive_builds.prf:
 F:/Qt5.9/5.9/mingw53_32/mkspecs/features/toolchain.prf:
 F:/Qt5.9/5.9/mingw53_32/mkspecs/features/default_pre.prf:
