@@ -18,7 +18,7 @@ MainWindow::~MainWindow()
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
 
-#if 0
+#if 1
     ui->label_VerticalGround->SetAnimationDirection(AnimationDirection::TopToBottom,0);
     ui->label_VerticalGround->StartAnimation(QRect(ui->label_VerticalGround->pos().x(),ui->label_VerticalGround->pos().y(),ui->label_VerticalGround->width(),ui->label_VerticalGround->height()));
 #else

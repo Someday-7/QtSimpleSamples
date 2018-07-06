@@ -38,7 +38,7 @@ void MovementImage::StartAnimation(QRect ShapeRect)
     m_Animation = new QPropertyAnimation(this, "geometry");
     m_Animation->setDuration(500);
 
-    int x = 0,y = 0,width = 0,height = ;
+    //int x = 0,y = 0,width = 0,height = ;
     if(m_CurrentDirection == AnimationDirection::TopToBottom)
     {
         m_Animation->setDirection(QAbstractAnimation::Forward);
