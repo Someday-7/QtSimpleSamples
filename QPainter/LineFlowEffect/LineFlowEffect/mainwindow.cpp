@@ -7,8 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     LineFlowEffect* LineFlowEffectObj = new LineFlowEffect;
-    LineFlowEffectObj->SetPosition(QPoint(100,100),QPoint(100,300),20,-1);
-    LineFlowEffectObj->SetLineStyle(Qt::SolidLine);
+    LineFlowEffectObj->SetPosition(QPoint(300,100),QPoint(100,100),20);//直角
+    LineFlowEffectObj->SetArrowStyle(Qt::SolidLine,QColor(2,211,254));
     LineFlowEffectObj->StartEffect();
     QWidget* widget = new QWidget;
     QHBoxLayout* mainLayOut = new QHBoxLayout;
