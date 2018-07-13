@@ -1,9 +1,9 @@
 # QtSimpleSamples
 LineFlowEffect：效果如下
 
-![image]（ https://github.com/Someday-7/QtSimpleSamples/blob/master/gif/arrowMovement1.gif ）
-![image]（ https://github.com/Someday-7/QtSimpleSamples/blob/master/gif/arrowMovement2.gif ）
+![DoubleLine]（ https://github.com/Someday-7/QtSimpleSamples/blob/master/gif/arrowMovement1.gif ）
+![SingleLine]（ https://github.com/Someday-7/QtSimpleSamples/blob/master/gif/arrowMovement2.gif ）
 
 BreatheEffect：效果如下
 
-![image]（ https://github.com/Someday-7/QtSimpleSamples/blob/master/gif/Breathe.gif ）
+![Circle]（ https://github.com/Someday-7/QtSimpleSamples/blob/master/gif/Breathe.gif ）
