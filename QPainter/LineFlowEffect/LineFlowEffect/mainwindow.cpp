@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     LineFlowEffectObj->SetArrowStyle(Qt::DotLine,QColor(2,211,254));
     LineFlowEffectObj->StartEffect();
+
     QWidget* widget = new QWidget;
     QHBoxLayout* mainLayOut = new QHBoxLayout;
     mainLayOut->addWidget(LineFlowEffectObj);
