@@ -8,39 +8,36 @@ LineFlowEffect::LineFlowEffect(QWidget *parent) : QWidget(parent)
     m_PolygonCount = 0;
     m_HypotenuseLength = 0.0;
     m_IsMoreLine = false;
+    m_LineDirection = 0;
     CurrentDisplayStatus[3] = {false};
-
-
-
-    m_UpdateTimer = new QTimer;
-    m_UpdateTimer->setInterval(500);
-    connect(m_UpdateTimer,SIGNAL(timeout()),this,SLOT(UpdateTimerSlot()));
+    m_MultiLinesPolygonIndex = NULL;
+    m_DisplayCurrentLineEffect = 0;
 }
 LineFlowEffect::~LineFlowEffect()
 {
-    m_UpdateTimer->deleteLater();
-}
-void LineFlowEffect::StartEffect()
-{
-    if(!m_UpdateTimer->isActive())
+    if(m_MultiLinesPolygonIndex!=NULL)
     {
-        m_UpdateTimer->start();
+        delete []m_MultiLinesPolygonIndex;
     }
 }
-void LineFlowEffect::EnbaleActiveDisplay(LineStatus Line, bool Status)
+void LineFlowEffect::SetArrowDirection(LineStatus Line)
 {
-    if(LineStatus::INPUT == Line)
+    if(LineStatus::ARROW_IN == Line)
     {
-        CurrentDisplayStatus[0] = Status;
+        m_LineDirection = 0;
     }
-    else if(LineStatus::OUTPUT == Line)
+    else if(LineStatus::ARROW_OUT == Line)
     {
-        CurrentDisplayStatus[1] = Status;
+        m_LineDirection = 1;
     }
 }
-void LineFlowEffect::UpdateTimerSlot()
+bool LineFlowEffect::GetLineStatus()
 {
-    update();
+    return CurrentDisplayStatus[m_LineDirection];
+}
+void LineFlowEffect::EnbaleActiveDisplay(bool Status)
+{
+    CurrentDisplayStatus[m_LineDirection] = Status;
 }
 void LineFlowEffect::SetPosition(QPoint StartPos,QPoint EndPos,int Width)
 {
@@ -58,9 +55,11 @@ void LineFlowEffect::SetPosition(QPoint StartPos,QPoint EndPos,int Width)
 
     //三角形总数
     m_PolygonCount = m_HypotenuseLength/m_DoubleLineDistance;
+#if ENABLE_EFFECT_DEBUG_OUTPUT
     qDebug()<<"[Line Effect] m_PolygonCount:"<<m_PolygonCount;
-    m_CurrentForwardPolygonIndex = 0;
-    m_CurrentReversePolygonIndex = m_PolygonCount;
+#endif
+    m_CurrentForwardPolygonIndex = 0;//由起点方向向前
+    m_CurrentReversePolygonIndex = m_PolygonCount;//第二条线由终点反向
     //画箭头时，坐标轴的旋转为顺时针方向
 
     if(m_PointAStart.x() == m_PointAEnd.x())//Y轴的两个方向
@@ -127,7 +126,9 @@ void LineFlowEffect::SetPosition(QVector<QPoint>LinesVector,int Width)
             linePara.m_Angle = asin((double)tempXLength/linePara.m_HypotenuseLength)*180/3.1415926;
             //三角形总数
             linePara.m_PolygonCount = linePara.m_HypotenuseLength/linePara.m_DoubleLineDistance;
+#if ENABLE_EFFECT_DEBUG_OUTPUT
             qDebug()<<"[Line Effect] m_PolygonCount:"<<linePara.m_PolygonCount;
+#endif
             //画箭头时，坐标轴的旋转为顺时针方向
             if(BeforePoint.x() == it->x())//Y轴的两个方向
             {
@@ -166,6 +167,11 @@ void LineFlowEffect::SetPosition(QVector<QPoint>LinesVector,int Width)
         BeforePoint.setY(it->y());
         Index++;
     }
+    if(m_LineNumberParaHash.size()>0)
+    {
+        m_MultiLinesPolygonIndex = new int[m_LineNumberParaHash.size()];
+        memset(m_MultiLinesPolygonIndex,0,sizeof(m_MultiLinesPolygonIndex)*m_LineNumberParaHash.size());
+    }
 }
 void LineFlowEffect::SetArrowStyle(Qt::PenStyle Style,QColor Color)
 {
@@ -187,14 +193,13 @@ void LineFlowEffect::SetArrowStyle(Qt::PenStyle Style,QColor Color)
     m_GrayBrush.setColor(Qt::gray);
     m_GrayBrush.setStyle(Qt::SolidPattern);
 }
-void LineFlowEffect::paintEvent(QPaintEvent *event)
-{
+void LineFlowEffect::paintEffect(QPainter& painter)
+{  
     if(!m_IsMoreLine)
     {
         QPointF ArrowLeftPoint,ArrowRightPoint,ArrowTopPoint;
         if(CurrentDisplayStatus[1])//Output Line1 Enable
         {
-            QPainter painter(this);
             painter.setRenderHint(QPainter::Antialiasing);
             painter.setRenderHint(QPainter::TextAntialiasing);
             painter.setPen(m_Pen);
@@ -242,16 +247,14 @@ void LineFlowEffect::paintEvent(QPaintEvent *event)
                     painter.drawPolygon(PolygonPoints,3);
                 }
                 painter.restore();
-
-                if(++m_CurrentForwardPolygonIndex>m_PolygonCount-1)//下标控制
-                {
-                    m_CurrentForwardPolygonIndex = 0;
-                }
+            }
+            if(++m_CurrentForwardPolygonIndex>m_PolygonCount-1)//下标控制
+            {
+                m_CurrentForwardPolygonIndex = 0;
             }
         }
         else//Output disable line1
         {
-            QPainter painter(this);
             painter.setRenderHint(QPainter::Antialiasing);
             painter.setRenderHint(QPainter::TextAntialiasing);
             painter.setPen(m_GrayPen);
@@ -277,7 +280,6 @@ void LineFlowEffect::paintEvent(QPaintEvent *event)
         {
             if(m_DoubleLine)//第二根线
             {
-                QPainter painter(this);
                 painter.setPen(m_Pen);
                 painter.drawLine(m_PointBStart,m_PointBEnd);
 
@@ -332,7 +334,6 @@ void LineFlowEffect::paintEvent(QPaintEvent *event)
         }
         else//Input disable line2
         {
-            QPainter painter(this);
             painter.setRenderHint(QPainter::Antialiasing);
             painter.setRenderHint(QPainter::TextAntialiasing);
             painter.setPen(m_GrayPen);
@@ -359,59 +360,72 @@ void LineFlowEffect::paintEvent(QPaintEvent *event)
     {
         if(CurrentDisplayStatus[1])//Output Line Enable(only one line)
         {
-            QPainter painter(this);
             painter.setRenderHint(QPainter::Antialiasing);
             painter.setRenderHint(QPainter::TextAntialiasing);
 
-            QHash<int,LinesCombinedParameter>::iterator it =  m_LineNumberParaHash.begin();
-            LinesCombinedParameter tempLinePara;
             QPointF ArrowLeftPoint,ArrowRightPoint,ArrowTopPoint = QPoint(0,0);
-            for(it;it != m_LineNumberParaHash.end(); it++)
+            LinesCombinedParameter tempLinePara = m_LineNumberParaHash.value(m_DisplayCurrentLineEffect);
+
+            m_CurrentForwardPolygonIndex = m_MultiLinesPolygonIndex[m_DisplayCurrentLineEffect];
+            painter.setPen(m_Pen);
+#if ENABLE_EFFECT_DEBUG_OUTPUT
+            qDebug()<<"[Line Effect] Start X:"<<tempLinePara.m_PointAStart.x()<<" Y:"<<tempLinePara.m_PointAStart.y();
+            qDebug()<<"[Line Effect] End X:"<<tempLinePara.m_PointAEnd.x()<<" Y:"<<tempLinePara.m_PointAEnd.y();
+#endif
+            LinesCombinedParameter tempDrawLine;
+            QHash<int,LinesCombinedParameter>::iterator it =  m_LineNumberParaHash.begin();
+            for(it;it != m_LineNumberParaHash.end(); it++)//画出所有线段
             {
-                painter.setPen(m_Pen);
-                tempLinePara = it.value();
-    #if ENABLE_EFFECT_DEBUG_OUTPUT
-                qDebug()<<"[Line Effect] Start X:"<<tempLinePara.m_PointAStart.x()<<" Y:"<<tempLinePara.m_PointAStart.y();
-                qDebug()<<"[Line Effect] End X:"<<tempLinePara.m_PointAEnd.x()<<" Y:"<<tempLinePara.m_PointAEnd.y();
-    #endif
-                painter.drawLine(tempLinePara.m_PointAStart,tempLinePara.m_PointAEnd);
-                //移动三角形
-                ArrowLeftPoint.setX(-tempLinePara.m_DoubleLineDistance/2);
-                ArrowLeftPoint.setY(0);
-                ArrowRightPoint.setX(tempLinePara.m_DoubleLineDistance/2);
-                ArrowRightPoint.setY(0);
-                ArrowTopPoint.setX(0);
-                ArrowTopPoint.setY(tempLinePara.m_DoubleLineDistance);
-                QBrush brush;
-                brush.setStyle(Qt::SolidPattern);
-                painter.setPen(Qt::NoPen);
-                for(int i=0;i<3;i++)
-                {
-                    painter.save();
-                    brush.setColor(QColor(255,128,192,128-40*i));
-                    painter.setBrush(brush);
-
-                    qreal tempX = tempLinePara.m_PointAStart.x()+sin(tempLinePara.m_MovementAngle*Pi/180)*(tempLinePara.m_HypotenuseLength*(((m_CurrentForwardPolygonIndex-i)>=0?(m_CurrentForwardPolygonIndex-i):0)/(double)tempLinePara.m_PolygonCount));
-                    qreal tempY = tempLinePara.m_PointAStart.y()+cos(tempLinePara.m_MovementAngle*Pi/180)*(tempLinePara.m_HypotenuseLength*(((m_CurrentForwardPolygonIndex-i)>=0?(m_CurrentForwardPolygonIndex-i):0)/(double)tempLinePara.m_PolygonCount));
-                    qDebug()<<"tempX:"<<tempX<<" tempY:"<<tempY;
-
-                    if(i==0 || (tempX != tempLinePara.m_PointAStart.x() || tempY != tempLinePara.m_PointAStart.y()))
-                    {
-                        painter.translate(tempX,tempY);
-                        painter.rotate(tempLinePara.m_Angle);
-                        QPointF PolygonPoints[]{ArrowLeftPoint,ArrowRightPoint,ArrowTopPoint};
-                        painter.drawPolygon(PolygonPoints,3);
-                    }
-                    painter.restore();
-                }
-                if(++m_CurrentForwardPolygonIndex>tempLinePara.m_PolygonCount-1)//下标控制
-                {
-                    m_CurrentForwardPolygonIndex = 0;
-                }
-            }//end iterator
-
+                tempDrawLine = it.value();
+                painter.drawLine(tempDrawLine.m_PointAStart,tempDrawLine.m_PointAEnd);
+            }
+            //移动三角形
+            ArrowLeftPoint.setX(-tempLinePara.m_DoubleLineDistance/2);
+            ArrowLeftPoint.setY(0);
+            ArrowRightPoint.setX(tempLinePara.m_DoubleLineDistance/2);
+            ArrowRightPoint.setY(0);
+            ArrowTopPoint.setX(0);
+            ArrowTopPoint.setY(tempLinePara.m_DoubleLineDistance);
+            QBrush brush;
+            brush.setStyle(Qt::SolidPattern);
             painter.setPen(Qt::NoPen);
-            //第一根线
+            for(int i=0;i<3;i++)
+            {
+                painter.save();
+                brush.setColor(QColor(255,128,192,128-40*i));
+                painter.setBrush(brush);
+
+                qreal tempX = tempLinePara.m_PointAStart.x()+sin(tempLinePara.m_MovementAngle*Pi/180)*(tempLinePara.m_HypotenuseLength*(((m_CurrentForwardPolygonIndex-i)>=0?(m_CurrentForwardPolygonIndex-i):0)/(double)tempLinePara.m_PolygonCount));
+                qreal tempY = tempLinePara.m_PointAStart.y()+cos(tempLinePara.m_MovementAngle*Pi/180)*(tempLinePara.m_HypotenuseLength*(((m_CurrentForwardPolygonIndex-i)>=0?(m_CurrentForwardPolygonIndex-i):0)/(double)tempLinePara.m_PolygonCount));
+                //qDebug()<<"tempX:"<<tempX<<" tempY:"<<tempY;
+
+                if(i==0 || (tempX != tempLinePara.m_PointAStart.x() || tempY != tempLinePara.m_PointAStart.y()))
+                {
+                    painter.translate(tempX,tempY);
+                    painter.rotate(tempLinePara.m_Angle);
+                    QPointF PolygonPoints[]{ArrowLeftPoint,ArrowRightPoint,ArrowTopPoint};
+                    painter.drawPolygon(PolygonPoints,3);
+                }
+                painter.restore();
+            }
+            if(++m_CurrentForwardPolygonIndex>tempLinePara.m_PolygonCount-1)//下标控制，移动箭头所在线段控制
+            {
+                m_CurrentForwardPolygonIndex = 0;
+                m_MultiLinesPolygonIndex[m_DisplayCurrentLineEffect] = 0;
+                if(++m_DisplayCurrentLineEffect >= m_LineNumberParaHash.size())
+                {
+                    m_DisplayCurrentLineEffect = 0;
+                    m_MultiLinesPolygonIndex[0] = 0;
+                }
+            }
+            else
+            {
+                m_MultiLinesPolygonIndex[m_DisplayCurrentLineEffect] = m_CurrentForwardPolygonIndex;
+            }
+
+            //qDebug()<<"[Line Effect] index:"<<m_DisplayCurrentLineEffect<<" "<<m_CurrentForwardPolygonIndex;
+            painter.setPen(Qt::NoPen);
+            //箭头
             tempLinePara =  m_LineNumberParaHash[m_LineNumberParaHash.size()-1];
             painter.setBrush(m_Brush);
             ArrowLeftPoint.setX(-tempLinePara.m_DoubleLineDistance/2);
@@ -429,7 +443,6 @@ void LineFlowEffect::paintEvent(QPaintEvent *event)
         }
         else//disabled
         {
-            QPainter painter(this);
             painter.setRenderHint(QPainter::Antialiasing);
             painter.setRenderHint(QPainter::TextAntialiasing);
 
@@ -459,7 +472,6 @@ void LineFlowEffect::paintEvent(QPaintEvent *event)
             painter.drawPolygon(APolygonPoints,3);
             painter.restore();
         }
-
     }
 }
 
