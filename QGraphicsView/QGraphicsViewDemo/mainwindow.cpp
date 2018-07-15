@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    scene;
     labViewCord = new QLabel(QString::fromLocal8Bit("View 坐标:"));
     labViewCord->setMinimumWidth(150);
     ui->statusBar->addWidget(labViewCord);
@@ -24,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
 
     QObject::connect(ui->graphicsView,SIGNAL(mouseMovePointSignal(QPoint)),this,SLOT(on_mouseMovePoint(QPoint)));
-    QObject::connect(ui->graphicsView,SIGNAL(mouseClickedSignal(QPoint)),this,SLOT(on_mouseMovePoint(QPoint)));
+    QObject::connect(ui->graphicsView,SIGNAL(mouseClickedSignal(QPoint)),this,SLOT(on_mouseClicked(QPoint)));
     iniGraphicsSystem();
 }
 
@@ -36,7 +35,7 @@ void MainWindow::on_mouseMovePoint(QPoint point)
 {
     labViewCord->setText(QString::asprintf("View 坐标: %d,%d",point.x(),point.y()));
     QPointF pointScene = ui->graphicsView->mapToScene(point);//转换到Scene坐标
-    labSceneCord->setText(QString::asprintf("Scene 坐标： %.0f,%.0f",pointScene.x(),pointScene.y()));
+    labSceneCord->setText(QString::asprintf("Scene 坐标: %.0f,%.0f",pointScene.x(),pointScene.y()));
 }
 void MainWindow::on_mouseClicked(QPoint point)
 {
@@ -46,7 +45,7 @@ void MainWindow::on_mouseClicked(QPoint point)
     if(item != NULL)
     {
         QPointF pointItem = ui->graphicsView->mapFromScene(pointScene);//转换到Scene坐标
-        labItemCord->setText(QString::asprintf("Item 坐标： %.0f,%.0f",pointItem.x(),pointItem.y()));
+        labItemCord->setText(QString::asprintf("Item 坐标: %.0f,%.0f",pointItem.x(),pointItem.y()));
     }
 }
 void MainWindow::resizeEvent(QResizeEvent* event)

@@ -36,7 +36,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="graphicsView"/>
+     <widget class="QWGraphicsView" name="graphicsView"/>
     </item>
    </layout>
   </widget>
@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>571</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
@@ -61,6 +61,13 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QWGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>QWGraphicsView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
