@@ -1,6 +1,6 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QDebug>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -10,11 +10,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QLabel* Label = new QLabel("Test");
     HLayout->addWidget(Label,Qt::AlignHCenter);
 
-    QLabel* LabelLeft = new QLabel("TestLeft");
+
     QDockWidget* Left = new QDockWidget("Left",this);
+    QLabel* LabelLeft = new QLabel("TestLeft",Left);
+    LabelLeft->setStyleSheet("color:#ff0000");
     Left->setFeatures(QDockWidget::DockWidgetMovable);
     Left->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
     Left->setWidget(LabelLeft);
+    Left->setStyleSheet("color:#ff0000;background-color:transparent");
 
     QLabel* LabelRight = new QLabel("TestRight");
     HLayout->addWidget(Label,Qt::AlignHCenter);
@@ -27,13 +30,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QDockWidget* Top = new QDockWidget("Top",this);
     Top->setWidget(LabelTop);
     Top->setFeatures(QDockWidget::DockWidgetMovable);
-    Top->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+    Top->setAllowedAreas(Qt::TopDockWidgetArea|Qt::BottomDockWidgetArea);
 
     QLabel* LabelBottom= new QLabel("TestBottom");
     QDockWidget* Bottom = new QDockWidget("Bottom",this);
     Bottom->setWidget(LabelBottom);
     Bottom->setFeatures(QDockWidget::DockWidgetMovable);
-    Bottom->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+    Bottom->setAllowedAreas(Qt::TopDockWidgetArea|Qt::BottomDockWidgetArea);
 
     QWidget* MainWidget = new QWidget;
     MainWidget->setLayout(HLayout);
