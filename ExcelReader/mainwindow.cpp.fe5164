@@ -1,0 +1,41 @@
+﻿#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <QDebug>
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+void MainWindow::ExcelReader()
+{
+    QSqlDatabase db = QSqlDatabase::addDatabase("QODBC", "excelexport");
+    if(!db.isValid())
+    {
+        qDebug()<<"[ExcelReader] Error: db.isValid "<<db.lastError();
+        return;
+    }
+    QString FilePath = QFileDialog::getOpenFileName(this,"Open Excel",".","excel Files(*.xls, *.xlsx, *.xlsm, *.xlsb)");
+    QString dsn="Driver={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};Readonly=TRUE;DBQ="+FilePath+ ";";
+    db.setDatabaseName(dsn);
+
+    if(!db.open())
+    {
+        qDebug()<<"[ExcelReader] Error: db.open Failed "<<db.lastError();
+        return;
+    }
+
+    QSqlQuery query(db);
+    query.exec("select * from [Sheet1$]");
+    while (query.next())
+    {
+        qDebug()<<"[ExcelReader] List size: "<<query.size();
+        qDebug()<<"[ExcelReader] List: "<<query.value(0).toString()<<" "<<query.value(1).toString();<<" "<<query.value(2).toString()<<" "<<query.value(3).toString();
+    }
+    db.close();
+}
