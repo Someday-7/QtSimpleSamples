@@ -16,8 +16,11 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void getItemCkeckedList(QVector<QStringList>&);
+    void addTopLevelItem(QString strTopItem);
+    void addChildItem(QString,QStringList);
 private slots:
-    void ShowBasisTablesSlot(QTreeWidgetItem*, int);
+    void slotItemDoubleClicked(QTreeWidgetItem*, int);
 private:
     Ui::MainWindow *ui;
     QTreeWidget* m_TreeWidget;
